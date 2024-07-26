@@ -15,7 +15,12 @@ func NewUserService(ur *repository.UserRepository) *UserService {
 }
 
 func (us *UserService) Save(user entity.User, c *gofr.Context) error {
-	err := us.repository.Save(user)
+	err := us.repository.ExistEmail(user)
+	if err != nil {
+		return err
+	}
+
+	err = us.repository.Save(user)
 	if err != nil {
 		return err
 	}

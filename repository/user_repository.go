@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/example/entity"
+	"go.mongodb.org/mongo-driver/bson"
 	"gofr.dev/pkg/gofr/datasource/mongo"
 )
 
@@ -23,4 +25,20 @@ func (ur *UserRepository) Save(user entity.User) error {
 	}
 
 	return nil
+}
+
+func (ur *UserRepository) ExistEmail(user entity.User) error {
+	var result entity.User
+
+	err := ur.client.FindOne(context.Background(), "users", bson.D{{Key: "email", Value: user.Email}}, &result)
+	if err != nil {
+		return err
+	}
+
+	if result.Email != "" {
+		return errors.New("esse email já existe")
+	}
+
+	return nil
+
 }
