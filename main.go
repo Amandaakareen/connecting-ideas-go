@@ -4,7 +4,7 @@ import (
 	"github.com/example/controller"
 	"github.com/example/infra"
 	"github.com/example/repository"
-	"github.com/example/service"
+	"github.com/example/usecase"
 	"gofr.dev/pkg/gofr"
 )
 
@@ -15,8 +15,8 @@ func main() {
 	app.AddMongo(db)
 
 	userRepository := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepository)
-	userController := controller.NewUserController(userService)
+	userUseCase := usecase.NewUserUsecase(userRepository)
+	userController := controller.NewUserController(userUseCase)
 
 	app.POST("/", userController.Create)
 	app.Run()

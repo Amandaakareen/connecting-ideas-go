@@ -28,15 +28,31 @@ func (ur *UserRepository) Save(user entity.User) error {
 }
 
 func (ur *UserRepository) ExistEmail(user entity.User) error {
-	var result entity.User
+	result := make([]entity.User, 0)
 
-	err := ur.client.FindOne(context.Background(), "users", bson.D{{Key: "email", Value: user.Email}}, &result)
+	err := ur.client.Find(context.Background(), "users", bson.D{{Key: "email", Value: user.Email}}, &result)
 	if err != nil {
 		return err
 	}
 
-	if result.Email != "" {
+	if len(result) > 0 {
 		return errors.New("esse email já existe")
+	}
+
+	return nil
+
+}
+
+func (ur *UserRepository) ExistName(user entity.User) error {
+	result := make([]entity.User, 0)
+
+	err := ur.client.Find(context.Background(), "users", bson.D{{Key: "name", Value: user.Name}}, &result)
+	if err != nil {
+		return err
+	}
+
+	if len(result) > 0 {
+		return errors.New("esse name já existe")
 	}
 
 	return nil

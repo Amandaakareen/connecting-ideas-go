@@ -2,15 +2,15 @@ package controller
 
 import (
 	"github.com/example/entity"
-	"github.com/example/service"
+	"github.com/example/usecase"
 	"gofr.dev/pkg/gofr"
 )
 
 type UserController struct {
-	service *service.UserService
+	service *usecase.UserUseCase
 }
 
-func NewUserController(us *service.UserService) *UserController {
+func NewUserController(us *usecase.UserUseCase) *UserController {
 	return &UserController{service: us}
 }
 

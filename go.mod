@@ -79,7 +79,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.2.0 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	gofr.dev/pkg/gofr/datasource/mongo v0.0.0-20240719095903-7daa42df60d9
-	golang.org/x/crypto v0.24.0 // indirect
+	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
