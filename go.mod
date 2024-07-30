@@ -4,7 +4,11 @@ go 1.22
 
 require gofr.dev v1.14.1
 
-require go.mongodb.org/mongo-driver v1.16.0 // indirect
+require (
+	go.mongodb.org/mongo-driver v1.16.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
+)
 
 require (
 	cloud.google.com/go v0.115.0 // indirect

@@ -16,3 +16,11 @@ func EncryptPassword(user *entity.User) error {
 	return nil
 
 }
+
+func CheckPassword(encryptPassword, loginPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(encryptPassword), []byte(loginPassword))
+	if err != nil {
+		return err
+	}
+	return nil
+}

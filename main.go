@@ -19,5 +19,6 @@ func main() {
 	userController := controller.NewUserController(userUseCase)
 
 	app.POST("/", userController.Create)
+	app.POST("/login", userController.Login)
 	app.Run()
 }
