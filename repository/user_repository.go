@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/example/entity"
@@ -31,8 +32,10 @@ func (ur *UserRepository) Save(user entity.User) error {
 
 func (ur *UserRepository) ExistEmail(email string) error {
 	var result entity.User
+	fmt.Print(ur.client)
 
 	err := ur.client.FindOne(context.Background(), "users", bson.D{{Key: "email", Value: email}}, &result)
+	fmt.Print(err)
 	if err != nil && !errors.Is(err, mongodrive.ErrNoDocuments) {
 		slog.Info("Teste", "flag", errors.Is(err, mongodrive.ErrNoDocuments))
 		return err

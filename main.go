@@ -1,24 +1,35 @@
 package main
 
 import (
+	"log/slog"
+	"net/http"
+
 	"github.com/example/controller"
 	"github.com/example/infra"
 	"github.com/example/repository"
 	"github.com/example/usecase"
-	"gofr.dev/pkg/gofr"
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	app := gofr.New()
+	forever := make(chan struct{})
 
-	db := infra.Connect()
-	app.AddMongo(db)
+	infra.ConnectMongo()
+	infra.ConnectMinio()
 
-	userRepository := repository.NewUserRepository(db)
+	userRepository := repository.NewUserRepository(infra.Mongo)
 	userUseCase := usecase.NewUserUsecase(userRepository)
 	userController := controller.NewUserController(userUseCase)
 
-	app.POST("/", userController.Create)
-	app.POST("/login", userController.Login)
-	app.Run()
+	mux := mux.NewRouter()
+
+	mux.HandleFunc("/", userController.Create).Methods(http.MethodPost)
+	mux.HandleFunc("/login", userController.Login).Methods(http.MethodPost)
+	mux.HandleFunc(" /foto", userController.AddPhoto).Methods(http.MethodPost)
+
+	go http.ListenAndServe(":8000", mux)
+
+	slog.Info("Server is ready on port 8000")
+
+	<-forever
 }

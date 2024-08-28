@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adimin
+      MONGO_INITDB_DATABASE: connecting
+
+  
+  minio:
+    image: docker.io/bitnami/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./.data/minio:/data
+    environment:
+      - MINIO_ROOT_USER=guest
+      - MINIO_ROOT_PASSWORD=guest
+      - MINIO_DEFAULT_BUCKETS=dados
+
+volumes:
+  mongo-data: {}
+
+
+
+
+
+

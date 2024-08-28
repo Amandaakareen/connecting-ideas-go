@@ -1,13 +1,17 @@
 package infra
 
 import (
+	"log"
+
 	"gofr.dev/pkg/gofr/datasource/mongo"
 )
 
-func Connect() *mongo.Client {
+var Mongo *mongo.Client
 
-	db := mongo.New(mongo.Config{URI: "mongodb://admin:adimin@localhost:27017", Database: "connecting"})
+func ConnectMongo() {
+	Mongo = mongo.New(mongo.Config{URI: "mongodb://admin:adimin@localhost:27017", Database: "connecting"})
 
-	return db
-
+	if Mongo == nil {
+		log.Fatalf("Erro ao conectar com o MongoDB ")
+	}
 }
