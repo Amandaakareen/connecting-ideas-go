@@ -5,14 +5,14 @@ import "net/http"
 type RestErr struct {
 	Message string `json:"message"`
 	Err     string `json:"error"`
-	Code    int64  `json:"code"`
+	Code    int    `json:"code"`
 }
 
 func (r *RestErr) Error() string {
 	return r.Message
 }
 
-func NewRestErr(message, err string, code int64) *RestErr {
+func NewRestErr(message, err string, code int) *RestErr {
 	return &RestErr{
 		Message: message,
 		Err:     err,

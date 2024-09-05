@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -10,8 +9,10 @@ import (
 	"strings"
 
 	"github.com/example/dto"
+	resterr "github.com/example/restErr"
 	"github.com/example/usecase"
 	"github.com/example/util"
+	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
@@ -27,62 +28,75 @@ func NewUserController(us *usecase.UserUseCase) *UserController {
 	return &UserController{usecase: us}
 }
 
-func (uc *UserController) Create(w http.ResponseWriter, r *http.Request) {
+func (uc *UserController) Create(r *gin.Context) {
 	var user dto.UserCreate
 
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := r.ShouldBindJSON(&user)
+
 	if err != nil {
-		w.WriteHeader(400)
-		return
-	}
-	fmt.Print(user)
-	result, err := uc.usecase.Save(user)
-	if err != nil {
-		slog.Error(err.Error())
-		w.WriteHeader(500)
+		fmt.Println(err)
+		resErr := resterr.NewBadRequestError("requisição inválida ")
+
+		r.JSON(resErr.Code, resErr)
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"result": result})
+	_, err = uc.usecase.Save(user)
+	if err != nil {
+		resErr := resterr.NewBadRequestError(err.Error())
+
+		r.JSON(resErr.Code, resErr)
+		return
+	}
+
 }
 
-func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
+func (uc *UserController) Login(r *gin.Context) {
 	var user dto.UserLogin
 
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		slog.Error(err.Error())
-		w.WriteHeader(400)
+	if err := r.ShouldBindJSON(user); err != nil {
+		resErr := resterr.NewBadRequestError("requisição inválida ")
+
+		r.JSON(resErr.Code, resErr)
 		return
 	}
 
 	token, err := uc.usecase.Login(user)
 	if err != nil {
-		slog.Error(err.Error())
-		w.WriteHeader(500)
+		resErr := resterr.NewBadRequestError(err.Error())
+
+		r.JSON(resErr.Code, resErr)
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"token": token})
+	r.JSON(http.StatusOK, token)
 }
 
-func (uc *UserController) AddPhoto(w http.ResponseWriter, r *http.Request) {
-	file, _, err := r.FormFile("photo")
+func (uc *UserController) AddPhoto(r *gin.Context) {
+	file, _, err := r.Request.FormFile("photo")
+	if err != nil {
+		resErr := resterr.NewBadRequestError("requisição inválida")
 
+		r.JSON(resErr.Code, resErr)
+		return
+	}
+
+	//pendente; ver no Gin como fazer isso.
+	fmt.Print(file)
 	photo, _ := util.FileToBytes(file)
 
-	path := r.URL.Path
+	fmt.Print(photo)
+	path := r.Request.PathValue("id")
 
 	parts := strings.Split(path, "/")
 
 	id, err := strconv.Atoi(parts[2])
 
+	fmt.Print(id)
 	uc.usecase.AddPhotoMinio(id, photo)
 
 	if err != nil {
 		slog.Error(err.Error())
-		return
 	}
 
-	return
 }

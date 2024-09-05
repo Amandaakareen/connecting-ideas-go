@@ -8,21 +8,23 @@ import (
 
 	"github.com/example/entity"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	mongodrive "go.mongodb.org/mongo-driver/mongo"
-	"gofr.dev/pkg/gofr/datasource/mongo"
 )
 
 type UserRepository struct {
-	client *mongo.Client
+	client *mongo.Collection
 }
 
-func NewUserRepository(m *mongo.Client) *UserRepository {
+func NewUserRepository(m *mongo.Collection) *UserRepository {
 	return &UserRepository{client: m}
 }
 
 func (ur *UserRepository) Save(user entity.User) error {
 
-	_, err := ur.client.InsertOne(context.Background(), "users", user)
+	a, err := ur.client.InsertOne(context.Background(), user)
+	fmt.Print(err)
+	fmt.Print(a)
 	if err != nil {
 		return err
 	}
@@ -34,8 +36,8 @@ func (ur *UserRepository) ExistEmail(email string) error {
 	var result entity.User
 	fmt.Print(ur.client)
 
-	err := ur.client.FindOne(context.Background(), "users", bson.D{{Key: "email", Value: email}}, &result)
-	fmt.Print(err)
+	err := ur.client.FindOne(context.Background(), bson.D{{Key: "email", Value: email}}).Decode(&result)
+
 	if err != nil && !errors.Is(err, mongodrive.ErrNoDocuments) {
 		slog.Info("Teste", "flag", errors.Is(err, mongodrive.ErrNoDocuments))
 		return err
@@ -49,26 +51,10 @@ func (ur *UserRepository) ExistEmail(email string) error {
 
 }
 
-func (ur *UserRepository) ExistName(name string) error {
-	var result entity.User
-
-	err := ur.client.FindOne(context.Background(), "users", bson.D{{Key: "name", Value: name}}, &result)
-	if err != nil && !errors.Is(err, mongodrive.ErrNoDocuments) {
-		return err
-	}
-
-	if result.Name != "" {
-		return errors.New("esse name já existe")
-	}
-
-	return nil
-
-}
-
 func (ur *UserRepository) FindByEmail(email string) (entity.User, error) {
 	var result entity.User
 
-	err := ur.client.FindOne(context.Background(), "users", bson.D{{Key: "email", Value: email}}, &result)
+	err := ur.client.FindOne(context.Background(), bson.D{{Key: "email", Value: email}}).Decode(&result)
 	if err != nil {
 		return result, err
 	}

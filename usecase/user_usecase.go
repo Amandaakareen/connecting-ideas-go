@@ -19,22 +19,18 @@ func NewUserUsecase(ur *repository.UserRepository) *UserUseCase {
 }
 
 func (us *UserUseCase) Save(userDto dto.UserCreate) (string, error) {
-	fmt.Print(userDto)
+
 	err := us.repository.ExistEmail(userDto.Email)
-	fmt.Print(userDto)
 	if err != nil {
 		return "", err
 	}
-	fmt.Print(userDto)
-	err = us.repository.ExistName(userDto.Name)
-	if err != nil {
-		return "", err
-	}
+
 	code := util.GenerateCode()
 	user := entity.NewUser(userDto.Name, userDto.Email, userDto.Password, "PENDENTE", code)
 
 	util.EncryptPassword(&user)
 
+	fmt.Print(user)
 	err = us.repository.Save(user)
 	if err != nil {
 		return "", err

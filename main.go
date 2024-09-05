@@ -1,35 +1,24 @@
 package main
 
 import (
-	"log/slog"
-	"net/http"
+	"log"
 
-	"github.com/example/controller"
 	"github.com/example/infra"
-	"github.com/example/repository"
-	"github.com/example/usecase"
-	"github.com/gorilla/mux"
+	"github.com/example/routes"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	forever := make(chan struct{})
 
 	infra.ConnectMongo()
 	infra.ConnectMinio()
+	router := gin.Default()
 
-	userRepository := repository.NewUserRepository(infra.Mongo)
-	userUseCase := usecase.NewUserUsecase(userRepository)
-	userController := controller.NewUserController(userUseCase)
+	routes.InitRoutes(&router.RouterGroup)
 
-	mux := mux.NewRouter()
+	err := router.Run(":8080")
 
-	mux.HandleFunc("/", userController.Create).Methods(http.MethodPost)
-	mux.HandleFunc("/login", userController.Login).Methods(http.MethodPost)
-	mux.HandleFunc(" /foto", userController.AddPhoto).Methods(http.MethodPost)
-
-	go http.ListenAndServe(":8000", mux)
-
-	slog.Info("Server is ready on port 8000")
-
-	<-forever
+	if err != nil {
+		log.Fatal(err)
+	}
 }

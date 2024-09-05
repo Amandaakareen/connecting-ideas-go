@@ -1,17 +1,32 @@
 package infra
 
 import (
-	"log"
+	"context"
 
-	"gofr.dev/pkg/gofr/datasource/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var Mongo *mongo.Client
+var Collection *mongo.Collection
 
 func ConnectMongo() {
-	Mongo = mongo.New(mongo.Config{URI: "mongodb://admin:adimin@localhost:27017", Database: "connecting"})
+	ctx := context.Background()
+	clientOptions := options.Client().ApplyURI("mongodb://admin:adimin@localhost:27017")
 
-	if Mongo == nil {
-		log.Fatalf("Erro ao conectar com o MongoDB ")
+	client, err := mongo.Connect(ctx, clientOptions)
+
+	if err != nil {
+		panic(err)
 	}
+
+	if err = client.Ping(ctx, nil); err != nil {
+		panic(err)
+	}
+
+	db := client.Database("connecting")
+
+	collection := db.Collection("users")
+
+	Collection = collection
+
 }
